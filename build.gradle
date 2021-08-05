@@ -1,0 +1,49 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.5.20'
+}
+
+group 'org.example'
+version '1.0'
+
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io/" }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation 'com.discord4j:discord4j-core:3.1.7'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+
+task fatjar(type: Jar) {
+    archiveClassifier = "full"
+    duplicatesStrategy DuplicatesStrategy.INCLUDE
+    manifest {
+        attributes(
+                'Main-Class': 'MainKt'
+        )
+    }
+    from {
+        configurations.runtimeClasspath.collect { !it.name.endsWith('jar') ? it : zipTree(it) }
+    }
+    with jar
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile)
+        .all {
+            kotlinOptions {
+                freeCompilerArgs += [
+                        '-Xno-call-assertions',
+                        '-Xno-receiver-assertions',
+                        '-Xno-param-assertions'
+                ]
+            }
+        }
